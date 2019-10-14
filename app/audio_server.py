@@ -17,6 +17,8 @@ export_file_url = 'https://www.dropbox.com/s/6bgq8t6yextloqp/export.pkl?raw=1'
 export_file_name = 'audio_model.pkl'
 
 classes = ['tank','pistal','machine_gun','ship','aircraft']
+class_names = ['坦克','手枪','机枪','舰艇','飞机']
+
 path = Path(__file__).parent
 
 app = Starlette()
@@ -87,7 +89,11 @@ async def analyze(request):
     raw_audio = torch.mean(torchaudio.load("temp.mp3", out = None, normalization = True)[0],0)
     audio = format_sound_data(raw_audio)
     prediction = learn.predict([audio.t().numpy()])[0]
-    return JSONResponse({'result': str(prediction)})
+
+    response = JSONResponse({'result': class_names[prediction]})
+    response.headers['Access-Control-Allow-Origin'] = "*"
+    return response
+    #return JSONResponse({'result': class_names[prediction]})
 
 
 if __name__ == '__main__':
